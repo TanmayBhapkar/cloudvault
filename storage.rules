@@ -1,0 +1,34 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function: Check if user owns the folder
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Match files stored in user-specific storage paths
+    match /users/{userId}/files/{fileName} {
+      // Allow read to authenticated users with valid token (file sharing links generate signed/tokenized URLs)
+      allow read: if isAuthenticated();
+
+      // Only allow upload if user owns the directory and file size is <= 100 MB
+      allow write: if isOwner(userId)
+                   && request.resource.size < 100 * 1024 * 1024;
+
+      // Allow deletion only if owner or administrator
+      allow delete: if isOwner(userId)
+                    || request.auth.token.email == 'admin@cloudvault.com';
+    }
+
+    // Default deny for all other unspecified paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="cloudGrad" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#0284C7"/>
+    </linearGradient>
+    <linearGradient id="lockGrad" x1="18" y1="20" x2="30" y2="34" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E2E8F0"/>
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#cloudGrad)"/>
+  <path d="M14 26C14 21.5817 17.5817 18 22 18C23.0163 18 23.9876 18.1901 24.881 18.5372C26.0594 15.8647 28.8142 14 32 14C36.4183 14 40 17.5817 40 22C40 22.3415 39.9786 22.678 39.9372 23.0083C41.1963 24.084 42 25.6986 42 27.5C42 30.5376 39.5376 33 36.5 33H16.5C13.4624 33 11 30.5376 11 27.5C11 26.8927 11.0984 26.3084 11.2804 25.7621C11.1002 25.1979 11 24.6006 11 24" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+  <!-- Shield/Vault Center -->
+  <path d="M24 16L32 20V26C32 31 28.5 35 24 37C19.5 35 16 31 16 26V20L24 16Z" fill="url(#lockGrad)"/>
+  <path d="M24 23V27M24 29H24.01" stroke="#0369A1" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

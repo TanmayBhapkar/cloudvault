@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function: Check if request is from the owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Helper function: Check if user is an Administrator
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == 'admin@cloudvault.com' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update, delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Files Collection
+    match /files/{fileId} {
+      // Allow read if user is the owner, or if file is explicitly shared with user's email, or if admin
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        resource.data.ownerEmail == request.auth.token.email ||
+        isAdmin()
+      );
+      
+      // Allow upload creation if owner matches authenticated user
+      allow create: if isAuthenticated() && (
+        request.resource.data.ownerId == request.auth.uid
+      );
+      
+      // Allow update and delete if user is the owner or an admin
+      allow update, delete: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Shares Collection
+    match /shares/{shareId} {
+      // Allow read if owner, or recipient email matches, or public link recipient, or admin
+      allow read: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        resource.data.sharedWithEmail == request.auth.token.email ||
+        resource.data.sharedWithEmail == '' ||
+        isAdmin()
+      );
+
+      // Only file owners can create or revoke share permissions
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && (
+        resource.data.ownerId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // Activity Collection
+    match /activity/{activityId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
